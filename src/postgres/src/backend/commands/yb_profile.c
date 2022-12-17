@@ -653,7 +653,7 @@ YbMaybeIncFailedAttemptsAndDisableProfile(Oid roleid)
 	if (!HeapTupleIsValid(prftuple))
 		ereport(ERROR,
 				(errcode(ERRCODE_UNDEFINED_OBJECT),
-				 errmsg("profile \"%d\" not found!", roleid)));
+				 errmsg("profile %u not found!", roleid)));
 
 	prfform = (Form_pg_yb_profile) GETSTRUCT(prftuple);
 
