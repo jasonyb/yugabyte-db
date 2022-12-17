@@ -32,8 +32,10 @@ CATALOG(pg_yb_role_profile,8054,YbRoleProfileRelationId) BKI_SHARED_RELATION BKI
 	char			rolprfstatus;				/* Refer to the status
 												   categories below */
 	int32			rolprffailedloginattempts;	/* Number of failed attempts */
+#ifdef CATALOG_VARLEN			/* variable-length fields start here */
 	timestamptz		rolprflockeduntil;			/* Lock timeout expiration
 												   time, if any */
+#endif
 } FormData_pg_yb_role_profile;
 
 /* ----------------
