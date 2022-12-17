@@ -47,8 +47,8 @@ typedef FormData_pg_yb_role_profile *Form_pg_yb_role_profile;
  * Symbolic values for rolprfstatus
  */
 
-#define ROLPRFSTATUS_OPEN 'o'	/* OPEN. Role is unlocked and can login */
-#define ROLPRFSTATUS_LOCKED 'l'	/* LOCKED. Role is locked and cannot login */
-#define ROLPRFSTATUS_LOCK_TIMED 't' /* LOCKED(TIMED). Role is locked until  a specific time */
+#define YB_ROLPRFSTATUS_OPEN 'o'	/* OPEN. Role is unlocked and can login */
+#define YB_ROLPRFSTATUS_LOCKED 'l'	/* LOCKED. Role is locked and cannot login */
+#define YB_ROLPRFSTATUS_LOCK_TIMED 't' /* LOCKED(TIMED). Role is locked until  a specific time */
 
 #endif							/* PG_YB_ROLE_PROFILE_H */

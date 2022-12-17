@@ -778,8 +778,8 @@ AlterRole(AlterRoleStmt *stmt)
 			YbCreateRoleProfile(roleid, rolename, profile);
 		else if (dunlocked != NULL)
 			YbSetRoleProfileStatus(roleid, rolename,
-								   unlocked == 0 ? ROLPRFSTATUS_LOCKED
-												 : ROLPRFSTATUS_OPEN);
+								   unlocked == 0 ? YB_ROLPRFSTATUS_LOCKED
+												 : YB_ROLPRFSTATUS_OPEN);
 		else
 		{
 			Assert(dnoprofile);

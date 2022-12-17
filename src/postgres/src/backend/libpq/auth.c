@@ -651,7 +651,7 @@ ClientAuthentication(Port *port)
 			{
 				Form_pg_yb_role_profile rolprfform = (Form_pg_yb_role_profile)
 											GETSTRUCT(profileTuple);
-				if (rolprfform->rolprfstatus != ROLPRFSTATUS_OPEN)
+				if (rolprfform->rolprfstatus != YB_ROLPRFSTATUS_OPEN)
 				{
 					profile_is_disabled = true;
 				}

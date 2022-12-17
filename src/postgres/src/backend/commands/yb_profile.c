@@ -357,7 +357,7 @@ create_role_profile_map(Oid roleid, Oid prfid)
 	values[Anum_pg_yb_role_profile_rolprfrole - 1] = roleid;
 	values[Anum_pg_yb_role_profile_rolprfprofile - 1] = prfid;
 	values[Anum_pg_yb_role_profile_rolprffailedloginattempts - 1] = 0;
-	values[Anum_pg_yb_role_profile_rolprfstatus - 1] = ROLPRFSTATUS_OPEN;
+	values[Anum_pg_yb_role_profile_rolprfstatus - 1] = YB_ROLPRFSTATUS_OPEN;
 
 	nulls[Anum_pg_yb_role_profile_rolprflockeduntil - 1] = true;
 
@@ -615,8 +615,8 @@ YbResetFailedAttemptsIfAllowed(Oid roleid)
 
 	rolprfform = (Form_pg_yb_role_profile) GETSTRUCT(rolprftuple);
 
-	if (rolprfform->rolprfstatus == ROLPRFSTATUS_OPEN && rolprfform->rolprffailedloginattempts > 0)
-		YBCExecuteUpdateLoginAttempts(roleid, 0, ROLPRFSTATUS_OPEN);
+	if (rolprfform->rolprfstatus == YB_ROLPRFSTATUS_OPEN && rolprfform->rolprffailedloginattempts > 0)
+		YBCExecuteUpdateLoginAttempts(roleid, 0, YB_ROLPRFSTATUS_OPEN);
 }
 
 /*
@@ -665,17 +665,17 @@ YbMaybeIncFailedAttemptsAndDisableProfile(Oid roleid)
 						: failed_attempts_limit + 1;
 
 	/* Keep role enabled IFF role is enabled AND failed attempts < limit */
-	rolprfstatus = rolprfform->rolprfstatus == ROLPRFSTATUS_OPEN &&
+	rolprfstatus = rolprfform->rolprfstatus == YB_ROLPRFSTATUS_OPEN &&
 						(new_failed_attempts <= failed_attempts_limit) ?
-						ROLPRFSTATUS_OPEN :
-						ROLPRFSTATUS_LOCKED;
+						YB_ROLPRFSTATUS_OPEN :
+						YB_ROLPRFSTATUS_LOCKED;
 
 	/* Do not write unless the values have changed */
 	if (rolprfstatus != rolprfform->rolprfstatus
 		|| new_failed_attempts != current_failed_attempts)
 		YBCExecuteUpdateLoginAttempts(roleid, new_failed_attempts, rolprfstatus);
 
-	return rolprfstatus != ROLPRFSTATUS_OPEN;
+	return rolprfstatus != YB_ROLPRFSTATUS_OPEN;
 }
 
 /*
