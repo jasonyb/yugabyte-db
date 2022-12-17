@@ -686,15 +686,15 @@ void
 YbRemoveRoleProfileForRoleIfExists(Oid roleid)
 {
 	Relation	 rel;
-	HeapTuple	 rolprftuple;
+	HeapTuple	 tup;
 
 	CheckProfileCatalogsExist();
 
 	rel = heap_open(YbRoleProfileRelationId, RowExclusiveLock);
-	rolprftuple = get_role_profile_tuple_by_role_oid(roleid);
+	tup = get_role_profile_tuple_by_role_oid(roleid);
 
 	/* We assume that there can be at most one matching tuple */
-	if (!HeapTupleIsValid(rolprftuple))
+	if (!HeapTupleIsValid(tup))
 	{
 		/* Role is not associated with a profile. */
 		heap_close(rel, NoLock);
@@ -704,7 +704,7 @@ YbRemoveRoleProfileForRoleIfExists(Oid roleid)
 	/*
 	 * Remove the pg_yb_role_profile tuple
 	 */
-	CatalogTupleDelete(rel, rolprftuple);
+	CatalogTupleDelete(rel, tup);
 
 	heap_close(rel, NoLock);
 
