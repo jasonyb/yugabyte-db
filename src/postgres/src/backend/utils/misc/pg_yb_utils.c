@@ -1465,7 +1465,6 @@ bool IsTransactionalDdlStatement(PlannedStmt *pstmt,
 
 		// All T_Drop... tags from nodes.h:
 		case T_DropOwnedStmt:
-		case T_DropProfileStmt:
 		case T_DropReplicationSlotCmd:
 		case T_DropRoleStmt:
 		case T_DropSubscriptionStmt:
@@ -1473,6 +1472,7 @@ bool IsTransactionalDdlStatement(PlannedStmt *pstmt,
 		case T_DropUserMappingStmt:
 			break;
 
+		case T_DropProfileStmt:
 		case T_DropStmt:
 			*is_breaking_catalog_change = false;
 			break;
