@@ -686,14 +686,12 @@ void
 YbRemoveRoleProfileForRoleIfExists(Oid roleid)
 {
 	Relation	 rel;
-	HeapScanDesc scandesc;
-	ScanKeyData	 skey[1];
-	HeapTuple	 tuple;
+	HeapTuple	 rolprftuple;
 
 	CheckProfileCatalogsExist();
 
 	rel = heap_open(YbRoleProfileRelationId, RowExclusiveLock);
-	HeapTuple rolprftuple = get_role_profile_tuple_by_role_oid(roleid);
+	rolprftuple = get_role_profile_tuple_by_role_oid(roleid);
 
 	/* We assume that there can be at most one matching tuple */
 	if (!HeapTupleIsValid(rolprftuple))
@@ -702,28 +700,12 @@ YbRemoveRoleProfileForRoleIfExists(Oid roleid)
 		heap_close(rel, NoLock);
 		return;
 	}
-	Oid roleprfid = HeapTupleGetOid(rolprftuple);
-
-	/*
-	 * Find the profile to delete.
-	 */
-	ScanKeyInit(&skey[0], ObjectIdAttributeNumber, BTEqualStrategyNumber,
-				F_OIDEQ, ObjectIdGetDatum(roleprfid));
-	scandesc = heap_beginscan_catalog(rel, 1, skey);
-	tuple = heap_getnext(scandesc, ForwardScanDirection);
-
-	/* If the profile exists, then remove it, otherwise raise an error. */
-	if (!HeapTupleIsValid(tuple))
-		ereport(ERROR,
-				(errcode(ERRCODE_UNDEFINED_OBJECT),
-				 errmsg("role profile %d does not exist", roleprfid)));
 
 	/*
 	 * Remove the pg_yb_role_profile tuple
 	 */
-	CatalogTupleDelete(rel, tuple);
+	CatalogTupleDelete(rel, rolprftuple);
 
-	heap_endscan(scandesc);
 	heap_close(rel, NoLock);
 
 	/*
