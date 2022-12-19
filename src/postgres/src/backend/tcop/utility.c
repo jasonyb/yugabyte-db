@@ -239,8 +239,8 @@ check_xact_readonly(Node *parsetree)
 		case T_CreateSubscriptionStmt:
 		case T_AlterSubscriptionStmt:
 		case T_DropSubscriptionStmt:
-		case T_CreateProfileStmt:
-		case T_DropProfileStmt:
+		case T_YbCreateProfileStmt:
+		case T_YbDropProfileStmt:
 			PreventCommandIfReadOnly(CreateCommandTag(parsetree));
 			PreventCommandIfParallelMode(CreateCommandTag(parsetree));
 			break;
@@ -569,18 +569,6 @@ standard_ProcessUtility(PlannedStmt *pstmt,
 		case T_AlterTableSpaceOptionsStmt:
 			/* no event triggers for global objects */
 			AlterTableSpaceOptions((AlterTableSpaceOptionsStmt *) parsetree);
-			break;
-
-		/* TODO(profile): move these YB cases to separate block. */
-		case T_CreateProfileStmt:
-			PreventInTransactionBlock(isTopLevel, "CREATE PROFILE");
-			YbCreateProfile((CreateProfileStmt *) parsetree);
-			break;
-
-		case T_DropProfileStmt:
-			/* no event triggers for global objects */
-			PreventInTransactionBlock(isTopLevel, "DROP PROFILE");
-			YbDropProfile((DropProfileStmt *) parsetree);
 			break;
 
 		case T_TruncateStmt:
@@ -972,6 +960,17 @@ standard_ProcessUtility(PlannedStmt *pstmt,
 					ExecSecLabelStmt(stmt);
 				break;
 			}
+
+		case T_YbCreateProfileStmt:
+			PreventInTransactionBlock(isTopLevel, "CREATE PROFILE");
+			YbCreateProfile((YbCreateProfileStmt *) parsetree);
+			break;
+
+		case T_YbDropProfileStmt:
+			/* no event triggers for global objects */
+			PreventInTransactionBlock(isTopLevel, "DROP PROFILE");
+			YbDropProfile((YbDropProfileStmt *) parsetree);
+			break;
 
 		default:
 			/* All other statement types have event trigger support */
@@ -2903,15 +2902,6 @@ CreateCommandTag(Node *parsetree)
 			tag = "ALTER COLLATION";
 			break;
 
-		/* TODO(profile): move these YB cases to separate block. */
-		case T_CreateProfileStmt:
-			tag = "CREATE PROFILE";
-			break;
-
-		case T_DropProfileStmt:
-			tag = "DROP PROFILE";
-			break;
-
 		case T_PrepareStmt:
 			tag = "PREPARE";
 			break;
@@ -3053,6 +3043,14 @@ CreateCommandTag(Node *parsetree)
 						break;
 				}
 			}
+			break;
+
+		case T_YbCreateProfileStmt:
+			tag = "CREATE PROFILE";
+			break;
+
+		case T_YbDropProfileStmt:
+			tag = "DROP PROFILE";
 			break;
 
 		default:

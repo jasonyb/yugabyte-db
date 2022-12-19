@@ -451,7 +451,7 @@ recordDependencyOnProfile(Oid classId, Oid objectId, Oid profile)
  * have tablespaces.
  */
 void
-changeDependencyOnProfile(Oid classId, Oid objectId, Oid newProfileId)
+changeDependencyOnProfile(Oid roleId, Oid newProfileId)
 {
 	Relation	sdepRel;
 
@@ -459,14 +459,36 @@ changeDependencyOnProfile(Oid classId, Oid objectId, Oid newProfileId)
 
 	if (newProfileId != InvalidOid)
 		shdepChangeDep(sdepRel,
-					   classId, objectId, 0,
+					   AuthIdRelationId, roleId, 0,
 					   YbProfileRelationId, newProfileId,
 					   SHARED_DEPENDENCY_PROFILE);
 	else
 		shdepDropDependency(sdepRel,
-							classId, objectId, 0, true,
+							AuthIdRelationId, roleId, 0, true,
 							InvalidOid, InvalidOid,
 							SHARED_DEPENDENCY_INVALID);
+
+	heap_close(sdepRel, RowExclusiveLock);
+}
+
+
+
+/*
+ * dropDependencyOnProfile
+ *
+ * Delete all pg_shdepend entries corresponding to a user -> profile mapping.
+ */
+void
+dropDependencyOnProfile(Oid roleId)
+{
+	Relation	sdepRel;
+
+	sdepRel = heap_open(SharedDependRelationId, RowExclusiveLock);
+
+	shdepDropDependency(sdepRel, AuthIdRelationId, roleId, 0,
+						true,
+						YbProfileRelationId, InvalidOid,
+						SHARED_DEPENDENCY_PROFILE);
 
 	heap_close(sdepRel, RowExclusiveLock);
 }

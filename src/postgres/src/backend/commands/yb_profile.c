@@ -62,7 +62,7 @@ CheckProfileCatalogsExist()
  * Create a profile.
  */
 Oid
-YbCreateProfile(CreateProfileStmt *stmt)
+YbCreateProfile(YbCreateProfileStmt *stmt)
 {
 	Relation  rel;
 	Datum	  values[Natts_pg_yb_profile];
@@ -214,7 +214,7 @@ get_profile_name(Oid prfid)
  * DROP PROFILE
  */
 void
-YbDropProfile(DropProfileStmt *stmt)
+YbDropProfile(YbDropProfileStmt *stmt)
 {
 	char	   *prfname = stmt->prfname;
 	HeapScanDesc scandesc;
@@ -314,11 +314,6 @@ YbDropProfile(DropProfileStmt *stmt)
 	CatalogTupleDelete(rel, tuple);
 
 	heap_endscan(scandesc);
-
-	/*
-	 * Remove any comments or security labels on this profile.
-	 * TODO(profile): implement this if needed.
-	 */
 
 	/*
 	 * There is no owner to remove a shared dependency record for since
@@ -559,7 +554,7 @@ YbCreateRoleProfile(Oid roleid, const char *rolename, const char *prfname)
 						new_record_repl, false);
 
 	/* Record dependency on profile */
-	changeDependencyOnProfile(AuthIdRelationId, roleid, prfid);
+	changeDependencyOnProfile(roleid, prfid);
 }
 
 /*
@@ -708,11 +703,5 @@ YbRemoveRoleProfileForRoleIfExists(Oid roleid)
 
 	heap_close(rel, NoLock);
 
-	/*
-	 * TODO(profile): check that this deletes only role->profile pg_shdepend
-	 * record.  Assumption right now is that that is the only record that
-	 * exists where objid=role.  To be safe, it is probably best to make (or
-	 * find) a function to delete the specific role->profile dependency record.
-	 */
-	deleteSharedDependencyRecordsFor(AuthIdRelationId, roleid, 0);
+	dropDependencyOnProfile(roleid);
 }
